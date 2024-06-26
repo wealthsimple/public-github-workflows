@@ -4,6 +4,11 @@ name: Ruby Gem Build & Publish
 on:
   workflow_call:
     inputs:
+      postgres_image:
+        description: "Sets the 'services.postgres.image' job argument for jobs that need a DB. This determines the image of postgres to be used (e.g. postgres:14-alpine)."
+        default: "" # empty indicates it should not start service
+        required: false
+        type: string
       ruby-versions:
         description: "A stringified JSON array of ruby versions to test this gem with"
         default: '["3.2", "3.3"]'
@@ -16,6 +21,16 @@ concurrency:
 
 jobs:
   build:
+    services:
+      postgres:
+        image: ${{ inputs.postgres_image }}
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     name: Preflight Check
     runs-on: ubuntu-22.04
     strategy:
