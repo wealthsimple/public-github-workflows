@@ -4,7 +4,7 @@ name: Ruby Gem Build & Publish
 on:
   workflow_call:
     inputs:
-      ruby_versions:
+      ruby-versions:
         description: "A stringified JSON array of ruby versions to test this gem with"
         default: '["3.2", "3.3"]'
         required: false
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        ruby_version: ${{ fromJSON(inputs.ruby_versions) }}
+        ruby-version: ${{ fromJSON(inputs.ruby-versions) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,8 +80,15 @@ jobs:
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
 
+  slack_failures:
+    name: Notify Slack on Failure
+    runs-on: ubuntu-22.04
+    if: always() && github.ref_name == 'main' && contains(needs.*.result, 'failure')
+    needs:
+      - build
+      - release
+    steps:
       - name: Notify slack on failure
-        if: failure()
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.BEPLAT_PUBLIC_REPOS_SLACK_TOKEN }}
@@ -105,10 +112,6 @@ jobs:
                     {
                       "type": "mrkdwn",
                       "text": "*Workflow*: ${{ github.workflow }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Job*: ${{ github.job }}"
                     }
                   ]
                 },
