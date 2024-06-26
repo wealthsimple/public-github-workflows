@@ -50,6 +50,10 @@ jobs:
       - name: Lint
         run: bundle exec rubocop
 
+      - name: Setup Postgres Database
+        if: ${{ inputs.postgres_image != '' }}
+        run: bundle exec rake db:setup
+
       - name: Test
         run: bundle exec rspec
 
