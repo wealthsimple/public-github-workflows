@@ -32,7 +32,7 @@ jobs:
         ports:
           - 5432:5432
     name: Preflight Check
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.DEFAULT_RUNS_ON }}
     strategy:
       matrix:
         ruby-version: ${{ fromJSON(inputs.ruby-versions) }}
@@ -61,7 +61,7 @@ jobs:
     name: Release
     if: github.ref_name == 'main'
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.DEFAULT_RUNS_ON }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,7 +101,7 @@ jobs:
 
   slack_failures:
     name: Notify Slack on Failure
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.DEFAULT_RUNS_ON }}
     if: always() && github.ref_name == 'main' && contains(needs.*.result, 'failure')
     needs:
       - build
