@@ -11,7 +11,7 @@ on:
         type: string
       ruby-versions:
         description: "A stringified JSON array of ruby versions to test this gem with"
-        default: '["3.2", "3.3"]'
+        default: '["3.3", "3.4"]'
         required: false
         type: string
 
